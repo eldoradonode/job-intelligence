@@ -5,31 +5,23 @@ export async function POST(req: Request) {
     const { job_id, connection_id } = await req.json();
 
     if (!job_id) {
-      return NextResponse.json({ error: 'Missing job_id parameter' }, { status: 400 });
+      return NextResponse.json({ error: 'job_id is required' }, { status: 400 });
     }
 
-    const n8nWebhookUrl = process.env.N8N_OUTREACH_WEBHOOK_URL || 'https://YOUR_N8N_DOMAIN/webhook/generate-outreach';
+    const n8nUrl = process.env.N8N_OUTREACH_WEBHOOK_URL || 'https://your-n8n-domain/webhook/generate-outreach';
 
-    // Call n8n Webhook
-    const response = await fetch(n8nWebhookUrl, {
+    const res = await fetch(n8nUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         job_id,
         connection_id: connection_id || null,
       }),
     });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      return NextResponse.json({ error: `n8n Webhook execution failed: ${errText}` }, { status: 500 });
-    }
-
-    const data = await response.json();
-    return NextResponse.json({ success: true, draft: data });
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    const data = await res.json();
+    return NextResponse.json(data);
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
