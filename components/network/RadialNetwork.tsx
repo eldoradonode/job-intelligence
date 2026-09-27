@@ -93,6 +93,21 @@ interface LinkDatum {
   curved: boolean  // cross-connections curve through center
 }
 
+
+  const handleGenerateOutreach = async (jobId: string, connectionId?: string) => {
+    try {
+      const res = await fetch('/api/outreach', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ job_id: jobId, connection_id: connectionId }),
+      });
+      const data = await res.json();
+      console.log('n8n Webhook Triggered:', data);
+    } catch (err) {
+      console.error('Failed to trigger outreach webhook:', err);
+    }
+  };
+
 export default function RadialNetwork({
   jobs, connections, companies, selectedId,
   onSelect, filterRegion, filterStatus, filterMinScore,
