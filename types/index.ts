@@ -26,7 +26,7 @@ export type LocationRegion =
   | 'hybrid'
   | 'onsite'
 
-export type JobSource = 'apify' | 'himalayas' | 'manual'
+export type JobSource = 'apify' | 'himalayas' | 'manual' | 'remotive' | 'mixed'
 
 export interface Company {
   id: string
