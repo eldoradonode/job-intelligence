@@ -21,7 +21,7 @@ interface Props {
 const W = 900
 const H = 960
 const CX = W / 2
-const CY = 480
+const CY = 420
 
 // Radial distances
 const R_YOU        = 14   // center YOU node
