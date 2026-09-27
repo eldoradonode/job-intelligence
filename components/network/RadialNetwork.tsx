@@ -129,7 +129,7 @@ export default function RadialNetwork({
     svg.call(
       d3.zoom<SVGSVGElement, unknown>()
         .scaleExtent([0.3, 4])
-        .on('zoom', e => root.attr('transform', e.transform))
+        .on('zoom', (event: any) => root.attr('transform', event.transform.toString()))
     )
 
     // ── Filter ──────────────────────────────────────────────
