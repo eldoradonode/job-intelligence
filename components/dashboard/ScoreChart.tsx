@@ -36,7 +36,7 @@ export default function ScoreChart({ data }: Props) {
       .range([0, width])
       .padding(0.25)
 
-    const maxCount = d3.max(data, d => d.count) || 1
+    const maxCount = Math.max(d3.max(data, d => d.count) ?? 1, 5)
     const y = d3.scaleLinear()
       .domain([0, maxCount])
       .nice()
