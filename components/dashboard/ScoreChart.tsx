@@ -19,7 +19,7 @@ export default function ScoreChart({ data }: Props) {
   useEffect(() => {
     if (!ref.current || !data.length) return
 
-    const W = ref.current.clientWidth || 600
+    const W = 800
     const H = 200
     const margin = { top: 10, right: 16, bottom: 36, left: 48 }
     const width = W - margin.left - margin.right

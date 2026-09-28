@@ -111,6 +111,7 @@ interface LinkDatum {
 export default function RadialNetwork({
   jobs, connections, companies, selectedId,
   onSelect, filterRegion, filterStatus, filterMinScore,
+  jobs = [], connections = [], companies = [],
 }: Props) {
   const svgRef    = useRef<SVGSVGElement>(null)
   const tooltipRef = useRef<HTMLDivElement>(null)
