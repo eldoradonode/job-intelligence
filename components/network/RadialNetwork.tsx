@@ -291,7 +291,7 @@ export default function RadialNetwork({
         data: co,
       })
       // You → Company spoke
-      links.push({ sx: CX, sy: CY, tx: x, ty: y, color: '#2a3a4a', dashed: false, curved: false })
+      links.push({ sx: CX, sy: CY, tx: x, ty: y, color: '#1e3a5a', dashed: false, curved: false })
     }
 
     // 3. Job → Company spokes
@@ -391,10 +391,10 @@ export default function RadialNetwork({
         linkG.append('line')
           .attr('x1', lk.sx).attr('y1', lk.sy)
           .attr('x2', lk.tx).attr('y2', lk.ty)
-          .attr('stroke', '#64748b')
-          .attr('stroke-width', lk.dashed ? 1.2 : 1.5)
+          .attr('stroke', lk.color)
+          .attr('stroke-width', lk.dashed ? 0.8 : 1.2)
           .attr('stroke-dasharray', lk.dashed ? '2 4' : 'none')
-          .attr('opacity',      lk.dashed ? 0.4 : 0.6)
+          .attr('opacity', lk.dashed ? 0.5 : 0.7)
       }
     })
 
