@@ -30,7 +30,7 @@ export default function NetworkPage() {
         getJobs(),
         getCompanies(),
         getConnections(),
-        supabase.from('jobs_with_company').select('*').eq('status','archived').not('match_score','is',null)
+        supabase.from('jobs_with_company').select('*').eq('status','archived').not('match_score','is',null).gte('match_score',50).order('match_score',{ascending:false}).limit(30)
       ])
       .then(([j, co, cn, archivedRes]) => {
         const archived = (archivedRes as any)?.data || []
