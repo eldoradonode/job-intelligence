@@ -35,16 +35,16 @@ const R_ARC_LABEL  = 360  // curved text label radius
 // Arc segment definitions — these are the category arcs around the outside
 // Each covers a slice of the full circle, like Cosmere's world arcs
 const ARC_DEFS = [
-  { id: 'new',              label: 'NEW — UNSCORED',      color: '#4b5563', span: 0.14 },
-  { id: 'remote_global',    label: 'REMOTE — GLOBAL',     color: '#3b82f6', span: 0.12 },
-  { id: 'remote_emea',      label: 'REMOTE — EMEA',       color: '#8b5cf6', span: 0.10 },
-  { id: 'remote_us_canada', label: 'REMOTE — US/CANADA',  color: '#06b6d4', span: 0.10 },
-  { id: 'remote_apac',      label: 'REMOTE — APAC',       color: '#10b981', span: 0.08 },
-  { id: 'high_match',       label: 'HIGH MATCH 80+',      color: '#22c55e', span: 0.12 },
-  { id: 'outreach_drafted', label: 'OUTREACH DRAFTED',    color: '#f59e0b', span: 0.12 },
-  { id: 'applied',          label: 'APPLIED',              color: '#8b5cf6', span: 0.10 },
-  { id: 'watching',         label: 'WATCHING',             color: '#3b82f6', span: 0.10 },
-  { id: 'country_restricted', label: 'NOT ELIGIBLE',          color: '#ef4444', span: 0.08 },
+  { id: 'watching',          label: 'WATCHING',           color: '#3b82f6', span: 0.10 },
+  { id: 'remote_global',     label: 'REMOTE — GLOBAL',   color: '#06b6d4', span: 0.10 },
+  { id: 'remote_emea',       label: 'REMOTE — EMEA',     color: '#a78bfa', span: 0.08 },
+  { id: 'remote_apac',       label: 'REMOTE — APAC',     color: '#10b981', span: 0.07 },
+  { id: 'high_match',        label: 'HIGH MATCH 80+',    color: '#22c55e', span: 0.10 },
+  { id: 'outreach_drafted',  label: 'OUTREACH',          color: '#f59e0b', span: 0.10 },
+  { id: 'applied',           label: 'APPLIED',            color: '#8b5cf6', span: 0.10 },
+  { id: 'below_threshold',   label: 'BELOW THRESHOLD',   color: '#374151', span: 0.10 },
+  { id: 'country_restricted',label: 'NOT ELIGIBLE',      color: '#ef4444', span: 0.07 },
+  { id: 'remote_us_canada',  label: 'US / CANADA',       color: '#0891b2', span: 0.07 },
 ]
 
 // Compute arc start/end angles from spans (they sum to 1.0)
@@ -66,12 +66,12 @@ function jobArcId(job: Job): string {
   if (job.status === 'outreach_drafted')    return 'outreach_drafted'
   if (job.status === 'applied')             return 'applied'
   if (job.status === 'country_restricted')  return 'country_restricted'
-  if ((job.match_score || 0) >= 80)     return 'high_match'
-  if (job.status === 'watching')         return 'watching'
-  if (job.status === 'new' || job.match_score === null) return 'new'
-  if (job.region === 'remote_emea')      return 'remote_emea'
-  if (job.region === 'remote_us_canada') return 'remote_us_canada'
-  if (job.region === 'remote_apac')      return 'remote_apac'
+  if (job.status === 'archived')            return 'below_threshold'
+  if ((job.match_score || 0) >= 80)         return 'high_match'
+  if (job.status === 'watching')            return 'watching'
+  if (job.region === 'remote_emea')         return 'remote_emea'
+  if (job.region === 'remote_us_canada')    return 'remote_us_canada'
+  if (job.region === 'remote_apac')         return 'remote_apac'
   return 'remote_global'
 }
 
@@ -138,7 +138,7 @@ export default function RadialNetwork({
 
     // ── Filter ──────────────────────────────────────────────
     const visibleJobs = jobs.filter(j => {
-      if (j.status === 'archived') return false
+      if (j.status === 'archived') return j.match_score !== null
       if (filterMinScore && (j.match_score || 0) < filterMinScore) return false
       if (filterStatus  && j.status !== filterStatus) return false
       if (filterRegion  && j.region !== filterRegion) return false

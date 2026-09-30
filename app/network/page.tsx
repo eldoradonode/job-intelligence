@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import type { Job, Company, Connection, Application } from '@/types'
-import { getJobs, getCompanies, getConnections, getApplicationsByJob } from '@/lib/supabase'
+import { getJobs, getCompanies, getConnections, getApplicationsByJob, supabase } from '@/lib/supabase'
 import NetworkFilters from '@/components/network/NetworkFilters'
 import JobDetailPanel from '@/components/network/JobDetailPanel'
 
@@ -26,9 +26,15 @@ export default function NetworkPage() {
   const [search, setSearch] = useState('')
 
   useEffect(() => {
-    Promise.all([getJobs(), getCompanies(), getConnections()])
-      .then(([j, co, cn]) => {
-        setJobs(j)
+    Promise.all([
+        getJobs(),
+        getCompanies(),
+        getConnections(),
+        supabase.from('jobs_with_company').select('*').eq('status','archived').not('match_score','is',null)
+      ])
+      .then(([j, co, cn, archivedRes]) => {
+        const archived = (archivedRes as any)?.data || []
+        setJobs([...j, ...archived])
         setCompanies(co)
         setConnections(cn)
         setLoading(false)
