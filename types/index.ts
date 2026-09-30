@@ -7,6 +7,7 @@ export type JobStatus =
   | 'rejected'
   | 'offer'
   | 'archived'
+  | 'country_restricted'
 
 export type ApplicationStatus =
   | 'drafted'

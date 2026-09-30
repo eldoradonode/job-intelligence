@@ -44,6 +44,7 @@ const ARC_DEFS = [
   { id: 'outreach_drafted', label: 'OUTREACH DRAFTED',    color: '#f59e0b', span: 0.12 },
   { id: 'applied',          label: 'APPLIED',              color: '#8b5cf6', span: 0.10 },
   { id: 'watching',         label: 'WATCHING',             color: '#3b82f6', span: 0.10 },
+  { id: 'country_restricted', label: 'NOT ELIGIBLE',          color: '#ef4444', span: 0.08 },
 ]
 
 // Compute arc start/end angles from spans (they sum to 1.0)
@@ -62,8 +63,9 @@ type ArcDef = ReturnType<typeof buildArcs>[0]
 
 // Which arc segment does a job belong to?
 function jobArcId(job: Job): string {
-  if (job.status === 'outreach_drafted') return 'outreach_drafted'
-  if (job.status === 'applied')          return 'applied'
+  if (job.status === 'outreach_drafted')    return 'outreach_drafted'
+  if (job.status === 'applied')             return 'applied'
+  if (job.status === 'country_restricted')  return 'country_restricted'
   if ((job.match_score || 0) >= 80)     return 'high_match'
   if (job.status === 'watching')         return 'watching'
   if (job.status === 'new' || job.match_score === null) return 'new'
@@ -289,7 +291,7 @@ export default function RadialNetwork({
         data: co,
       })
       // You → Company spoke
-      links.push({ sx: CX, sy: CY, tx: x, ty: y, color: '#1e1e1c', dashed: false, curved: false })
+      links.push({ sx: CX, sy: CY, tx: x, ty: y, color: '#2a3a4a', dashed: false, curved: false })
     }
 
     // 3. Job → Company spokes
@@ -299,7 +301,12 @@ export default function RadialNetwork({
       if (coAngle === undefined) continue
       const cx2 = CX + Math.cos(coAngle) * R_COMPANY
       const cy2 = CY + Math.sin(coAngle) * R_COMPANY
-      links.push({ sx: cx2, sy: cy2, tx: jn.x, ty: jn.y, color: '#1a1a18', dashed: false, curved: false })
+      links.push({ sx: cx2, sy: cy2, tx: jn.x, ty: jn.y, color: '#2a3a4a', dashed: false, curved: false })
+      // Draw direct YOU→job spoke for tracked jobs
+      const trackedJob = jn.data as Job
+      if (['watching','outreach_drafted','applied','interviewing','offer'].includes(trackedJob.status || '')) {
+        links.push({ sx: CX, sy: CY, tx: jn.x, ty: jn.y, color: trackedJob.status === 'outreach_drafted' ? '#f59e0b44' : trackedJob.status === 'applied' ? '#8b5cf644' : '#3b82f633', dashed: true, curved: false })
+      }
     }
 
     // 4. Connections — placed just beyond their related jobs

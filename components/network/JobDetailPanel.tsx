@@ -19,7 +19,7 @@ interface Props {
 }
 
 const JOB_STATUSES = [
-  'watching', 'outreach_drafted', 'applied', 'interviewing', 'rejected', 'offer', 'archived',
+  'watching', 'outreach_drafted', 'applied', 'interviewing', 'rejected', 'offer', 'country_restricted', 'archived',
 ] as const
 
 export default function JobDetailPanel({

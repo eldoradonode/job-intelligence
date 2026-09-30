@@ -41,6 +41,7 @@ export function statusLabel(status: JobStatus): string {
     rejected: 'Rejected',
     offer: 'Offer',
     archived: 'Archived',
+    country_restricted: 'Not eligible',
   }
   return map[status] || status
 }
@@ -55,6 +56,7 @@ export function statusDot(status: JobStatus): string {
     rejected: '#ef4444',
     offer: '#22c55e',
     archived: '#374151',
+    country_restricted: '#ef4444',
   }
   return map[status] || '#6b7280'
 }
