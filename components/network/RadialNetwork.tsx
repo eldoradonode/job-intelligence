@@ -50,7 +50,7 @@ const ARC_DEFS = [
 // Compute arc start/end angles from spans (they sum to 1.0)
 function buildArcs() {
   const count = ARC_DEFS.length
-  const gap = 0.035 // Equal radian gap between every arc
+  const gap = 0.035
   const sweep = (Math.PI * 2 - (gap * count)) / count
   let cursor = -Math.PI / 2
 
@@ -155,21 +155,7 @@ export default function RadialNetwork({
     const arcs = buildArcs()
     const arcByIdMap = new Map(arcs.map(a => [a.id, a]))
 
-    // ── Defs: arc paths for textPath labels ─────────────────
-            const defs = root.append('defs')
-    arcs.forEach(arc => {
-      root.append('text')
-        .attr('font-size', '8.5px')
-        .attr('font-family', 'Inter, sans-serif')
-        .attr('font-weight', '600')
-        .attr('letter-spacing', '0.08em')
-        .attr('fill', arc.color)
-        .append('textPath')
-        .attr('href', `#arcpath-${arc.id}`)
-        .attr('startOffset', '50%')
-        .attr('text-anchor', 'middle')
-        .text(arc.label)
-    })
+    // ── Defs cleaned ──
 
     // ── Orbit rings (subtle dashed circles) ─────────────────
     ;[R_COMPANY, R_JOB, R_CONNECTION].forEach((r, i) => {
