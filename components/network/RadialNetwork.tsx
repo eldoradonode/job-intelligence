@@ -51,14 +51,14 @@ const ARC_DEFS = [
 function buildArcs() {
   const count = ARC_DEFS.length
   const gap = 0.035
-  const sweep = (Math.PI * 2 - (gap * count)) / count
+  const sweep = (Math.PI * 2 - gap * count) / count
   let cursor = -Math.PI / 2
 
   return ARC_DEFS.map(def => {
-    const start = cursor
-    const end = cursor + sweep
-    cursor = end + gap
-    return { ...def, startAngle: start, endAngle: end }
+    const startAngle = cursor
+    const endAngle = cursor + sweep
+    cursor = endAngle + gap
+    return { ...def, startAngle, endAngle }
   })
 }
 
