@@ -35,14 +35,14 @@ const R_ARC_LABEL  = 360  // curved text label radius
 // Arc segment definitions — these are the category arcs around the outside
 // Each covers a slice of the full circle, like Cosmere's world arcs
 const ARC_DEFS = [
-  { id: 'watching',          label: 'WATCHING',           color: '#3b82f6', span: 0.11 },
-  { id: 'remote_global',     label: 'REMOTE — GLOBAL',   color: '#06b6d4', span: 0.11 },
+  { id: 'watching',          label: 'WATCHING',           color: '#3b82f6', span: 0.10 },
+  { id: 'remote_global',     label: 'REMOTE — GLOBAL',   color: '#06b6d4', span: 0.10 },
   { id: 'remote_emea',       label: 'REMOTE — EMEA',     color: '#a78bfa', span: 0.09 },
   { id: 'remote_apac',       label: 'REMOTE — APAC',     color: '#10b981', span: 0.08 },
-  { id: 'high_match',        label: 'HIGH MATCH 80+',    color: '#22c55e', span: 0.11 },
-  { id: 'outreach_drafted',  label: 'OUTREACH DRAFTED',  color: '#f59e0b', span: 0.11 },
-  { id: 'applied',           label: 'APPLIED',            color: '#8b5cf6', span: 0.11 },
-  { id: 'below_threshold',   label: 'BELOW THRESHOLD',   color: '#374151', span: 0.09 },
+  { id: 'high_match',        label: 'HIGH MATCH 80+',    color: '#22c55e', span: 0.10 },
+  { id: 'outreach_drafted',  label: 'OUTREACH DRAFTED',  color: '#f59e0b', span: 0.10 },
+  { id: 'applied',           label: 'APPLIED',            color: '#8b5cf6', span: 0.10 },
+  { id: 'below_threshold',   label: 'BELOW THRESHOLD',   color: '#64748b', span: 0.11 },
   { id: 'country_restricted',label: 'NOT ELIGIBLE',      color: '#ef4444', span: 0.08 },
   { id: 'remote_us_canada',  label: 'US / CANADA',       color: '#0891b2', span: 0.08 },
 ]
