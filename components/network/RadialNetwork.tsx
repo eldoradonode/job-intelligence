@@ -50,9 +50,9 @@ const ARC_DEFS = [
 // Compute arc start/end angles from spans (they sum to 1.0)
 function buildArcs() {
   const count = ARC_DEFS.length
-  const gap = 0.035
+  const gap = 0.04
   const sweep = (Math.PI * 2 - gap * count) / count
-  let cursor = -Math.PI / 2
+  let cursor = 0
 
   return ARC_DEFS.map(def => {
     const startAngle = cursor
