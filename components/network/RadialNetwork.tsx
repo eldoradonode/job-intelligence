@@ -50,9 +50,8 @@ const ARC_DEFS = [
 // Compute arc start/end angles from spans (they sum to 1.0)
 function buildArcs() {
   const count = ARC_DEFS.length
-  const gap = 0.035
-  const totalGap = gap * count
-  const sweep = (Math.PI * 2 - totalGap) / count
+  const gap = 0.035 // Equal radian gap between every arc
+  const sweep = (Math.PI * 2 - (gap * count)) / count
   let cursor = -Math.PI / 2
 
   return ARC_DEFS.map(def => {
@@ -157,55 +156,18 @@ export default function RadialNetwork({
     const arcByIdMap = new Map(arcs.map(a => [a.id, a]))
 
     // ── Defs: arc paths for textPath labels ─────────────────
-        const defs = root.append('defs')
-    arcs.forEach(arc => {
-      const r = R_ARC_LABEL
-      const midAngle = (arc.startAngle + arc.endAngle) / 2
-      const isBottom = Math.sin(midAngle) > 0
-
-      // Sweep forward for top half, reverse points for bottom half so text stays upright
-      const x1 = CX + Math.cos(isBottom ? arc.endAngle : arc.startAngle) * r
-      const y1 = CY + Math.sin(isBottom ? arc.endAngle : arc.startAngle) * r
-      const x2 = CX + Math.cos(isBottom ? arc.startAngle : arc.endAngle) * r
-      const y2 = CY + Math.sin(isBottom ? arc.startAngle : arc.endAngle) * r
-
-      defs.append('path')
-        .attr('id', `arcpath-${arc.id}`)
-        .attr('d', `M ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2}`)
-    })
-
-    // ── Draw arc bands ──────────────────────────────────────
-    const arcGen = d3.arc<ArcDef>()
-      .innerRadius(R_ARC_INNER)
-      .outerRadius(R_ARC_OUTER)
-      .startAngle(d => d.startAngle)
-      .endAngle(d => d.endAngle)
-      .padAngle(0.025)
-      .cornerRadius(2)
-
-    const arcG = root.append('g').attr('transform', `translate(${CX},${CY})`)
-
-    arcG.selectAll('path.arc-band')
-      .data(arcs)
-      .join('path')
-      .attr('class', 'arc-band')
-      .attr('d', d => arcGen(d) || '')
-      .attr('fill',         d => d.color + '22')
-      .attr('stroke',       d => d.color)
-      .attr('stroke-width', 1.5)
-      .attr('opacity', 0.85)
-
-    // ── Curved arc labels (textPath) ────────────────────────
+            const defs = root.append('defs')
     arcs.forEach(arc => {
       root.append('text')
-        .attr('font-size',      '8.5px')
-        .attr('font-family',    'Inter, sans-serif')
-        .attr('font-weight',    '500')
-        .attr('letter-spacing', '0.12em')
-        .attr('fill',           arc.color)
+        .attr('font-size', '8.5px')
+        .attr('font-family', 'Inter, sans-serif')
+        .attr('font-weight', '600')
+        .attr('letter-spacing', '0.08em')
+        .attr('fill', arc.color)
         .append('textPath')
-        .attr('href',       `#arcpath-${arc.id}`)
-        .attr('startOffset', '50%').attr('text-anchor', 'middle')
+        .attr('href', `#arcpath-${arc.id}`)
+        .attr('startOffset', '50%')
+        .attr('text-anchor', 'middle')
         .text(arc.label)
     })
 
