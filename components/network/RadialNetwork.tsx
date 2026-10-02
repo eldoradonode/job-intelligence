@@ -42,7 +42,7 @@ const ARC_DEFS = [
   { id: 'high_match',        label: 'HIGH MATCH 80+',    color: '#22c55e', span: 0.10 },
   { id: 'outreach_drafted',  label: 'OUTREACH DRAFTED',  color: '#f59e0b', span: 0.11 },
   { id: 'applied',           label: 'APPLIED',            color: '#8b5cf6', span: 0.11 },
-  { id: 'below_threshold',   label: 'BELOW THRESHOLD',   color: '#64748b', span: 0.11 },
+  { id: 'below_threshold',   label: 'BELOW THRESHOLD',   color: '#64748b', span: 0.10 },
   { id: 'country_restricted',label: 'NOT ELIGIBLE',      color: '#ef4444', span: 0.08 },
   { id: 'remote_us_canada',  label: 'US / CANADA',       color: '#0891b2', span: 0.08 },
 ]
