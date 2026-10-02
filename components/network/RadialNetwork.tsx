@@ -31,6 +31,7 @@ const R_CONNECTION = 295  // connection nodes (outer ring)
 const R_ARC_INNER  = 320  // arc band inner edge
 const R_ARC_OUTER  = 345  // arc band outer edge
 const R_ARC_LABEL  = 360  // curved text label radius
+const R_ARC_MID    = (R_ARC_INNER + R_ARC_OUTER) / 2  // center of arc band
 
 // Arc segment definitions — these are the category arcs around the outside
 // Each covers a slice of the full circle, like Cosmere's world arcs
@@ -159,7 +160,7 @@ export default function RadialNetwork({
     // ── Defs: arc paths for textPath labels ─────────────────
         const defs = root.append('defs')
     arcs.forEach(arc => {
-      const r = R_ARC_LABEL
+      const r = R_ARC_MID + (Math.sin((arc.startAngle + arc.endAngle) / 2) > 0 ? 3 : -3)
       const midAngle = (arc.startAngle + arc.endAngle) / 2
       const isBottom = Math.sin(midAngle) > 0
 
@@ -171,7 +172,7 @@ export default function RadialNetwork({
 
       defs.append('path')
         .attr('id', `arcpath-${arc.id}`)
-        .attr('d', `M ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2}`)
+        .attr('d', `M ${x1} ${y1} A ${r} ${r} 0 0 ${isBottom ? 0 : 1} ${x2} ${y2}`)
     })
 
     // ── Draw arc bands ──────────────────────────────────────
