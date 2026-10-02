@@ -178,8 +178,8 @@ export default function RadialNetwork({
     const arcGen = d3.arc<ArcDef>()
       .innerRadius(R_ARC_INNER)
       .outerRadius(R_ARC_OUTER)
-      .startAngle(d => d.startAngle)
-      .endAngle(d => d.endAngle)
+      .startAngle(d => d.startAngle + Math.PI / 2)
+      .endAngle(d => d.endAngle + Math.PI / 2)
       .padAngle(0.025)
       .cornerRadius(2)
 
