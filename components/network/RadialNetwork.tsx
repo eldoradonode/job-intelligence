@@ -49,12 +49,16 @@ const ARC_DEFS = [
 
 // Compute arc start/end angles from spans (they sum to 1.0)
 function buildArcs() {
-  let cursor = -Math.PI / 2  // start at top
+  const count = ARC_DEFS.length
+  const gap = 0.035
+  const totalGap = gap * count
+  const sweep = (Math.PI * 2 - totalGap) / count
+  let cursor = -Math.PI / 2
+
   return ARC_DEFS.map(def => {
-    const sweep = def.span * Math.PI * 2
     const start = cursor
-    const end   = cursor + sweep
-    cursor = end + 0.025 // small gap between arcs
+    const end = cursor + sweep
+    cursor = end + gap
     return { ...def, startAngle: start, endAngle: end }
   })
 }
@@ -153,18 +157,21 @@ export default function RadialNetwork({
     const arcByIdMap = new Map(arcs.map(a => [a.id, a]))
 
     // ── Defs: arc paths for textPath labels ─────────────────
-    const defs = root.append('defs')
+        const defs = root.append('defs')
     arcs.forEach(arc => {
-      // Arc path for text-along-path
       const r = R_ARC_LABEL
-      const x1 = CX + Math.cos(arc.startAngle) * r
-      const y1 = CY + Math.sin(arc.startAngle) * r
-      const x2 = CX + Math.cos(arc.endAngle) * r
-      const y2 = CY + Math.sin(arc.endAngle) * r
-      const large = arc.endAngle - arc.startAngle > Math.PI ? 1 : 0
+      const midAngle = (arc.startAngle + arc.endAngle) / 2
+      const isBottom = Math.sin(midAngle) > 0
+
+      // Sweep forward for top half, reverse points for bottom half so text stays upright
+      const x1 = CX + Math.cos(isBottom ? arc.endAngle : arc.startAngle) * r
+      const y1 = CY + Math.sin(isBottom ? arc.endAngle : arc.startAngle) * r
+      const x2 = CX + Math.cos(isBottom ? arc.startAngle : arc.endAngle) * r
+      const y2 = CY + Math.sin(isBottom ? arc.startAngle : arc.endAngle) * r
+
       defs.append('path')
         .attr('id', `arcpath-${arc.id}`)
-        .attr('d', `M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2}`)
+        .attr('d', `M ${x1} ${y1} A ${r} ${r} 0 0 1 ${x2} ${y2}`)
     })
 
     // ── Draw arc bands ──────────────────────────────────────
@@ -198,7 +205,7 @@ export default function RadialNetwork({
         .attr('fill',           arc.color)
         .append('textPath')
         .attr('href',       `#arcpath-${arc.id}`)
-        .attr('startOffset', '10%')
+        .attr('startOffset', '50%').attr('text-anchor', 'middle')
         .text(arc.label)
     })
 
