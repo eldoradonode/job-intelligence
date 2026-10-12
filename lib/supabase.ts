@@ -27,7 +27,7 @@ export async function getJobs(filters?: {
     .from('jobs_with_company')
     .select('*')
     .not('status', 'eq', 'archived')
-    .order('match_score', { ascending: false })
+    .order('match_score', { ascending: false, nullsFirst: false })
 
   if (filters?.minScore) {
     query = query.gte('match_score', filters.minScore)
