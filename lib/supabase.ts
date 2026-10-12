@@ -169,15 +169,63 @@ export async function getScoreDistribution(): Promise<
 // ── Network graph data ────────────────────────────────────────
 
 export async function getNetworkGraph(): Promise<NetworkGraph> {
-  const { data, error } = await supabase
+  const MIN_SCORE = 65
+  const MAX_JOBS = 400
+  const CHUNK = 50
+
+  // 1. Jobs worth showing: score >= 65 or anything you have acted on
+  const { data: jobRows, error: jobErr } = await supabase
     .from('network_graph')
     .select('*')
+    .eq('node_type', 'job')
+    .or(`match_score.gte.${MIN_SCORE},status.in.(applied,outreach_drafted,interviewing)`)
+    .order('match_score', { ascending: false, nullsFirst: false })
+    .limit(MAX_JOBS)
 
-  if (error) throw error
+  if (jobErr) throw jobErr
+  const jobs = jobRows || []
 
-  const rows = data || []
+  const companyIdList = Array.from(
+    new Set(jobs.map((j) => j.parent_id).filter(Boolean))
+  ) as string[]
 
-  // Build nodes
+  const chunks: string[][] = []
+  for (let i = 0; i < companyIdList.length; i += CHUNK) {
+    chunks.push(companyIdList.slice(i, i + CHUNK))
+  }
+
+  // 2. Only the companies those jobs belong to
+  const companyResults = await Promise.all(
+    chunks.map((ids) =>
+      supabase
+        .from('network_graph')
+        .select('*')
+        .eq('node_type', 'company')
+        .in('id', ids)
+        .limit(1000)
+    )
+  )
+
+  // 3. Only connections at those companies
+  const connResults = await Promise.all(
+    chunks.map((ids) =>
+      supabase
+        .from('network_graph')
+        .select('*')
+        .eq('node_type', 'connection')
+        .in('parent_id', ids)
+        .limit(1000)
+    )
+  )
+
+  for (const r of [...companyResults, ...connResults]) {
+    if (r.error) throw r.error
+  }
+
+  const companies = companyResults.flatMap((r) => r.data || [])
+  const connections = connResults.flatMap((r) => r.data || [])
+  const rows = [...companies, ...jobs, ...connections]
+
   const nodes: NetworkNode[] = [
     { id: 'you', type: 'you', label: 'You', weight: 1 },
   ]
@@ -194,19 +242,14 @@ export async function getNetworkGraph(): Promise<NetworkGraph> {
     })
   }
 
-  // Build links
   const links: NetworkLink[] = []
-  const companyIds = new Set(
-    rows.filter((r) => r.node_type === 'company').map((r) => r.id)
-  )
+  const companyIds = new Set(companies.map((r) => r.id))
 
-  // You → Companies
-  for (const row of rows.filter((r) => r.node_type === 'company')) {
+  for (const row of companies) {
     links.push({ source: 'you', target: row.id, type: 'you_company' })
   }
 
-  // Companies → Jobs, Companies → Connections
-  for (const row of rows.filter((r) => r.node_type !== 'company')) {
+  for (const row of [...jobs, ...connections]) {
     if (row.parent_id && companyIds.has(row.parent_id)) {
       links.push({
         source: row.parent_id,
