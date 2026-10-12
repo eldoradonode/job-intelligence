@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import type { Job, Company, Connection, Application } from '@/types'
-import { getJobs, getCompanies, getConnections, getApplicationsByJob, supabase } from '@/lib/supabase'
+import { getNetworkData, getApplicationsByJob, supabase } from '@/lib/supabase'
 import NetworkFilters from '@/components/network/NetworkFilters'
 import JobDetailPanel from '@/components/network/JobDetailPanel'
 
@@ -25,18 +25,15 @@ export default function NetworkPage() {
   const [filterMinScore, setFilterMinScore] = useState(0)
   const [search, setSearch] = useState('')
 
+  const [totalJobs, setTotalJobs] = useState(0)
+
   useEffect(() => {
-    Promise.all([
-        getJobs(),
-        getCompanies(),
-        getConnections(),
-        supabase.from('jobs_with_company').select('*').eq('status','archived').not('match_score','is',null).gte('match_score',50).order('match_score',{ascending:false}).limit(30)
-      ])
-      .then(([j, co, cn, archivedRes]) => {
-        const archived = (archivedRes as any)?.data || []
-        setJobs([...j, ...archived])
-        setCompanies(co)
-        setConnections(cn)
+    getNetworkData()
+      .then((net) => {
+        setJobs(net.jobs)
+        setCompanies(net.companies)
+        setConnections(net.connections)
+        setTotalJobs(net.totalJobs)
         setLoading(false)
       })
       .catch(() => setLoading(false))
@@ -52,11 +49,11 @@ export default function NetworkPage() {
   }, [jobs, search])
 
   const stats = useMemo(() => ({
-    total: jobs.filter(j => j.status !== 'archived').length,
+    total: totalJobs,
     highMatch: jobs.filter(j => (j.match_score || 0) >= 80).length,
     drafted: jobs.filter(j => j.status === 'outreach_drafted').length,
     applied: jobs.filter(j => j.status === 'applied').length,
-  }), [jobs])
+  }), [jobs, totalJobs])
 
   async function handleSelect(id: string, type: 'job' | 'company' | 'connection') {
     setSelectedId(id)

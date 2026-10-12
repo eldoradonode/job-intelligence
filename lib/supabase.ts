@@ -261,3 +261,81 @@ export async function getNetworkGraph(): Promise<NetworkGraph> {
 
   return { nodes, links }
 }
+
+// ── Network page data (bounded: scales with matches, not table size) ──
+
+const NETWORK_MIN_SCORE = 50
+const NETWORK_MAX_JOBS = 600
+const NETWORK_ACTED = 'applied,outreach_drafted,interviewing'
+
+function chunk<T>(arr: T[], size: number): T[][] {
+  const out: T[][] = []
+  for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size))
+  return out
+}
+
+export async function getNetworkData(): Promise<{
+  jobs: Job[]
+  companies: Company[]
+  connections: Connection[]
+  totalJobs: number
+}> {
+  const [mainRes, archivedRes, countRes] = await Promise.all([
+    supabase
+      .from('jobs_with_company')
+      .select('*')
+      .not('status', 'eq', 'archived')
+      .or(`match_score.gte.${NETWORK_MIN_SCORE},status.in.(${NETWORK_ACTED})`)
+      .order('match_score', { ascending: false, nullsFirst: false })
+      .limit(NETWORK_MAX_JOBS),
+    supabase
+      .from('jobs_with_company')
+      .select('*')
+      .eq('status', 'archived')
+      .not('match_score', 'is', null)
+      .gte('match_score', 50)
+      .order('match_score', { ascending: false, nullsFirst: false })
+      .limit(30),
+    supabase
+      .from('jobs')
+      .select('id', { count: 'exact', head: true })
+      .not('status', 'eq', 'archived'),
+  ])
+
+  for (const r of [mainRes, archivedRes, countRes]) {
+    if (r.error) throw r.error
+  }
+
+  const jobs = [
+    ...((mainRes.data as Job[]) || []),
+    ...((archivedRes.data as Job[]) || []),
+  ]
+
+  const companyIds = Array.from(
+    new Set(jobs.map((j) => (j as any).company_id).filter(Boolean))
+  ) as string[]
+
+  const [companyRes, connectionRes] = await Promise.all([
+    Promise.all(
+      chunk(companyIds, 50).map((ids) =>
+        supabase.from('companies').select('*').in('id', ids)
+      )
+    ),
+    Promise.all(
+      chunk(companyIds, 50).map((ids) =>
+        supabase.from('connections').select('*').in('company_id', ids)
+      )
+    ),
+  ])
+
+  for (const r of [...companyRes, ...connectionRes]) {
+    if (r.error) throw r.error
+  }
+
+  const companies = companyRes
+    .flatMap((r) => (r.data as Company[]) || [])
+    .sort((a, b) => String((a as any).name).localeCompare(String((b as any).name)))
+  const connections = connectionRes.flatMap((r) => (r.data as Connection[]) || [])
+
+  return { jobs, companies, connections, totalJobs: countRes.count ?? 0 }
+}
